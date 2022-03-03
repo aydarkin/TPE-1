@@ -12,30 +12,46 @@ namespace TPE_1
 {
     public partial class Form1 : Form
     {
+        List<List<int>> savedColumns;
 
         public Form1()
         {
             InitializeComponent();
         }
 
-        private void btnApply_Click(object sender, EventArgs e)
+        void btnApply_Click(object sender, EventArgs e)
         {
             var isPFE = rbPFE.Checked;
             var k = (int)nudFactors.Value;
             var p = (int)nudEffects.Value;
             var v = (int)nudVar.Value;
 
-            if (!isPFE && k <= p)
+            var effects = GetGroups(k);
+            if (!isPFE && p > effects)
             {
-                MessageBox.Show("Линейных эффектов должно быть меньше факторов", "Ошибка");
+                MessageBox.Show($"Линейных эффектов должно быть не более {effects}", "Ошибка");
                 return;
             }
 
             var model = isPFE ? PFE(k, v) : DFE(k, p, v);
-            CreateTable(model);
+            CreateTable(model, k);
         }
 
-        private List<List<double>> PFE(int k, int v)
+        int GetGroups(int k)
+        {
+            var result = 0;
+            for (int i = 2; i <= k; i++)
+                result += GetGroup(k, i);
+
+            return result;
+        }
+
+        int GetGroup(int k, int m)
+        {
+            return (int)((Fact(k)) / (Fact(m) * Fact(k - m)));
+        }
+
+        List<List<double>> PFE(int k, int v)
         {
             var model = new List<List<double>>();
             var all = Math.Pow(v, k);
@@ -68,41 +84,118 @@ namespace TPE_1
             return model;
         }
 
-        private List<List<double>> DFE(int k, int p, int v)
+        List<List<double>> DFE(int k, int p, int v)
         {
             var model = PFE(k, v);
             var all = Math.Pow(v, k);
             for (int i = 0; i < all; i++)
-            {
-                for (int j = k - p - 1; j < k; j++)
-                {
+                for (int j = 0; j < p; j++)
                     model[i].Add(0);
-                }
-            }
 
-            for (int i = 0; i < p; i++)
+            int effects;
+            List<List<int>> columns = new List<List<int>>();
+            int added = 0;
+            bool isExit = false;
+
+            // пары, тройки, четверки...
+            for (int group = 2; group <= k; group++)
             {
-                // 2
+                effects = GetGroup(k, group);
+                for (int add = 0; add < effects; add++)
+                {
+                    columns.Add(new List<int>());
+                    added++;
 
+                    // сочетание для столбца
+                    columns[added - 1] = NextSet(
+                            added == 1 ? null : columns[added - 2],
+                            k,
+                            group
+                        );
+
+                    for (int row = 0; row < all; row++)
+                    {
+                        // перемножаем сочетание
+                        model[row][k + added - 1] = columns[added - 1].Aggregate(1.0, 
+                            (acc, b) => 
+                                acc * model[row][b - 1]
+                            );
+                    }
+
+                    if (added >= p)
+                    {
+                        isExit = true;
+                        break;
+                    }     
+                }
+
+                if (isExit)
+                    break;
             }
 
+            savedColumns = columns;
             return model;
         }
 
-        private double GetVaried(int elem, int full)
+        // Факториал
+        long Fact(long n)
+        {
+            if (n == 0)
+                return 1;
+            else
+                return n * Fact(n - 1);
+        }
+
+        // Получить следующее сочентание из n по m
+        List<int> NextSet(List<int> a, int n, int m)
+        {
+            var result = a != null 
+                ? new List<int>(a) 
+                : new List<int>();
+
+            // первое заполнение
+            if (result.Count != m)
+            {
+                result.Clear();
+                for (int i = 1; i <= m; i++)
+                    result.Add(i);
+
+                return result;
+            }
+
+            int k = m;
+
+            for (int i = k - 1; i >= 0; --i)
+                if (result[i] < n - k + i + 1)
+                {
+                    result[i]++;
+                    for (int j = i + 1; j < k; ++j)
+                        result[j] = result[j - 1] + 1;
+                    return result;
+                }
+            return result;
+        }
+
+        double GetVaried(int elem, int full)
         {
             var part = 2.0 / (full - 1);
             return -1 + (part * elem);
         }
 
-        private void CreateTable(List<List<double>> model)
+        void CreateTable(List<List<double>> model, int k)
         {
             grid.Rows.Clear();
             grid.Columns.Clear();
 
+            string name;
             for (int col = 0; col < model[0].Count; col++)
             {
-                grid.Columns.Add($"x{col + 1}", $"x{col + 1}");
+                if (col < k)
+                    name = $"x{col + 1}";
+                else
+                    name = savedColumns[col - k].Aggregate("", (acc, el) => acc + $"x{el}");
+                   
+                grid.Columns.Add(name, name);
 
                 for (int row = 0; row < model.Count; row++)
                 {
@@ -120,7 +213,7 @@ namespace TPE_1
 
         }
 
-        private void rbPFE_CheckedChanged(object sender, EventArgs e)
+        void rbPFE_CheckedChanged(object sender, EventArgs e)
         {
             nudEffects.Visible = rbDFE.Checked;
             label3.Visible = rbDFE.Checked;

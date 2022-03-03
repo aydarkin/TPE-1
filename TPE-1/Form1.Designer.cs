@@ -46,12 +46,16 @@
             // 
             // grid
             // 
+            this.grid.AllowUserToAddRows = false;
+            this.grid.AllowUserToDeleteRows = false;
+            this.grid.AllowUserToOrderColumns = true;
             this.grid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.grid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.grid.Location = new System.Drawing.Point(12, 12);
             this.grid.Name = "grid";
+            this.grid.ReadOnly = true;
             this.grid.RowHeadersWidth = 60;
             this.grid.Size = new System.Drawing.Size(598, 426);
             this.grid.TabIndex = 0;
@@ -124,6 +128,7 @@
             // 
             // btnApply
             // 
+            this.btnApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnApply.Location = new System.Drawing.Point(640, 377);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(120, 23);
@@ -134,6 +139,7 @@
             // 
             // rbPFE
             // 
+            this.rbPFE.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.rbPFE.AutoSize = true;
             this.rbPFE.Checked = true;
             this.rbPFE.Location = new System.Drawing.Point(642, 269);
@@ -147,6 +153,7 @@
             // 
             // rbDFE
             // 
+            this.rbDFE.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.rbDFE.AutoSize = true;
             this.rbDFE.Location = new System.Drawing.Point(641, 292);
             this.rbDFE.Name = "rbDFE";
@@ -161,7 +168,7 @@
             this.nudEffects.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.nudEffects.Location = new System.Drawing.Point(640, 106);
             this.nudEffects.Maximum = new decimal(new int[] {
-            19,
+            1000,
             0,
             0,
             0});
@@ -178,6 +185,7 @@
             0,
             0,
             0});
+            this.nudEffects.Visible = false;
             // 
             // label3
             // 
@@ -188,6 +196,7 @@
             this.label3.Size = new System.Drawing.Size(59, 13);
             this.label3.TabIndex = 3;
             this.label3.Text = "Эффектов";
+            this.label3.Visible = false;
             // 
             // Form1
             // 
