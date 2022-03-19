@@ -26,11 +26,17 @@ namespace TPE_1
             var p = (int)nudEffects.Value;
             var v = (int)nudVar.Value;
 
-            var effects = GetGroups(k);
-            if (!isPFE && p > effects)
+            
+            if (!isPFE)
             {
-                MessageBox.Show($"Линейных эффектов должно быть не более {effects}", "Ошибка");
-                return;
+                k = (int)nudFactors.Value - p;
+                var effects = GetGroups(k);
+
+                if (p > effects)
+                {
+                    MessageBox.Show($"Линейных эффектов должно быть не более {effects}", "Ошибка");
+                    return;
+                }
             }
 
             var model = isPFE ? PFE(k, v) : DFE(k, p, v);
